@@ -1,6 +1,6 @@
 Package.describe({
   name: "splayerhd:default-collection-audit-hooks",
-  version: "1.1.14",
+  version: "1.1.18",
   // Brief, one-line summary of the package.
   summary: "Automatically assign default collection fields" + "(createdAt, createdBy, modifiedAt, modifiedBy)",
   // URL to the Git repository containing the source code for this package.

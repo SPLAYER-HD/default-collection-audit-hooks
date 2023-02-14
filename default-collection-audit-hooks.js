@@ -25,7 +25,7 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
       set: undefined,
       unset: undefined,
     };
-    if (auditFields){
+    if (auditFields) {
       auditFields.forEach((field) => {
         if (modifier["$set"] && Object.keys(modifier["$set"]).find((fn) => fn.includes(field))) {
           for (key in modifier["$set"]) {
@@ -33,7 +33,9 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
               let oldValue = key.split(".").reduce((a, b) => a[b], doc);
               oldValue = oldValue ? (typeof oldValue === "string" ? oldValue : JSON.stringify(oldValue).trim()) : "";
               let newValue = modifier["$set"][key]
-                ? (typeof modifier["$set"][key] === "string" ? modifier["$set"][key] : JSON.stringify(modifier["$set"][key]).trim())
+                ? typeof modifier["$set"][key] === "string"
+                  ? modifier["$set"][key]
+                  : JSON.stringify(modifier["$set"][key]).trim()
                 : "";
               if (newValue !== oldValue) {
                 if (oldValue) {
@@ -53,8 +55,12 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
           for (key in modifier["$unset"]) {
             if (key.includes(field)) {
               let oldValue = key.split(".").reduce((a, b) => a[b], doc);
-              oldValue = oldValue ? typeof oldValue === 'string' ? oldValue : JSON.stringify(oldValue).trim() : "";
-              let newValue = modifier["$unset"][key] ? typeof modifier["$unset"][key] === "string" ? modifier["$unset"][key] : JSON.stringify(modifier["$unset"][key]).trim() : "";
+              oldValue = oldValue ? (typeof oldValue === "string" ? oldValue : JSON.stringify(oldValue).trim()) : "";
+              let newValue = modifier["$unset"][key]
+                ? typeof modifier["$unset"][key] === "string"
+                  ? modifier["$unset"][key]
+                  : JSON.stringify(modifier["$unset"][key]).trim()
+                : "";
               if (newValue !== oldValue) {
                 if (oldValue) {
                   differences.oldValues[key.replace(/\./g, "-")] = oldValue;
@@ -137,7 +143,7 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
       const audit = {
         entityType: collection._name,
         entityId: doc._id,
-        type: "collection.insert",
+        type: "insert",
         data: doc,
       };
       Audit.insert(audit);
@@ -155,13 +161,16 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
           }
         }
         if (options.auditAll) {
-          options.auditFields.push(Object.keys(modifier["$set"]));
-          options.auditFields.push(Object.keys(modifier["$unset"]));
+          if (modifier["$set"]) {
+            options.auditFields = options.auditFields.concat(Object.keys(modifier["$set"]));
+          }
+          if (modifier["$unset"]) {
+            options.auditFields = options.auditFields.concat(Object.keys(modifier["$unset"]));
+          }
         }
         getAudit(doc, modifier, options.auditFields).then((audit) => {
-          //console.log("audit ", audit);
+          // console.log("audit ", audit);
           if (audit) {
-            audit.type = "collection.update";
             Audit.insert(audit);
           }
         });
@@ -179,4 +188,3 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
     }
   });
 };
-
