@@ -143,9 +143,12 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
       const audit = {
         entityType: collection._name,
         entityId: doc._id,
-        type: "insert",
+        type: 'insert',
         data: doc,
+        createdAt: options.createdAt ?? Date.now(),
+        createdBy: options.createdBy ?? userId,
       };
+
       Audit.insert(audit);
     }
   });

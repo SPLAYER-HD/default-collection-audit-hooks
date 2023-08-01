@@ -51,3 +51,11 @@ test.defaultCollectionHooks({
 ```
 
 Will create `createdAt`, `createdBy` on object create, and do nothing on object update.
+
+
+## to publish
+change the version in package.js
+then run
+```
+meteor publish
+```

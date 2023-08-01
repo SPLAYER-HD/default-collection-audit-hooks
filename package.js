@@ -1,6 +1,6 @@
 Package.describe({
   name: "splayerhd:default-collection-audit-hooks",
-  version: "1.1.18",
+  version: "1.1.21",
   // Brief, one-line summary of the package.
   summary: "Automatically assign default collection fields" + "(createdAt, createdBy, modifiedAt, modifiedBy)",
   // URL to the Git repository containing the source code for this package.
@@ -15,7 +15,7 @@ Package.onUse(function (api) {
   api.use('ecmascript');
   api.use('mongo');
   api.use('tracker');
-  api.use('matb33:collection-hooks@0.7.15');
+  api.use('matb33:collection-hooks@1.2.2');
   api.addFiles("default-collection-audit-hooks.js");
 });
 

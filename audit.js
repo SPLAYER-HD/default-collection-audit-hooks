@@ -1,3 +1,3 @@
 const Audit = new Mongo.Collection("audit");
-Audit.defaultCollectionHooks();
+// Audit.defaultCollectionAuditHooks();
 export default Audit;
