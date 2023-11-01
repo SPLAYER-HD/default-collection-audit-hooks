@@ -30,7 +30,7 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
         if (modifier["$set"] && Object.keys(modifier["$set"]).find((fn) => fn.includes(field))) {
           for (key in modifier["$set"]) {
             if (key.includes(field)) {
-              let oldValue = key.split(".").reduce((a, b) => a[b], doc);
+              let oldValue = key.split(".").reduce((a, b) => a?.[b], doc);
               oldValue = oldValue ? (typeof oldValue === "string" ? oldValue : JSON.stringify(oldValue).trim()) : "";
               let newValue = modifier["$set"][key]
                 ? typeof modifier["$set"][key] === "string"
