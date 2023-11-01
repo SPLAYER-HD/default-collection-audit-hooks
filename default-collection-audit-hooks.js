@@ -54,7 +54,7 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
         if (modifier["$unset"] && Object.keys(modifier["$unset"]).find((fn) => fn.includes(field))) {
           for (key in modifier["$unset"]) {
             if (key.includes(field)) {
-              let oldValue = key.split(".").reduce((a, b) => a[b], doc);
+              let oldValue = key.split(".").reduce((a, b) => a?.[b], doc);
               oldValue = oldValue ? (typeof oldValue === "string" ? oldValue : JSON.stringify(oldValue).trim()) : "";
               let newValue = modifier["$unset"][key]
                 ? typeof modifier["$unset"][key] === "string"
@@ -113,25 +113,6 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
     return audit;
   };
 
-  // const getdifferences = (diferrences, modifier, key) => {
-  //   if (key.includes(field)) {
-  //     console.log('clubs.js line 53 - modifier["$set"][key] ', typeof field, field, key, modifier[key]);
-  //     // newField[key] = modifier[key];
-  //     let oldValue = field.split(".").reduce((a, b) => a[b], doc);
-  //     console.log("clubs.js line 59 - oldValue ", oldValue);
-  //     if (JSON.stringify(modifier[key]).trim() !== JSON.stringify(oldValue).trim()) {
-  //       if (oldValue) {
-  //         oldValues[field.replace(/\./g, "-")] = JSON.stringify(oldValue);
-  //       }
-  //       if (modifier[key]) {
-  //         newValues[field.replace(/\./g, "-")] = JSON.stringify(modifier[key]);
-  //       }
-  //       diferrences.hasChanged = true;
-  //     }
-  //   }
-  //   return diferrences;
-  // };
-
   collection.before.insert(function (userId, doc) {
     if (options.createdAt) {
       doc.createdAt = Date.now(); // moment().format("YYYY-MM-DD_hh-mmA");
@@ -145,8 +126,8 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
         entityId: doc._id,
         type: 'insert',
         data: doc,
-        createdAt: options.createdAt ?? Date.now(),
-        createdBy: options.createdBy ?? userId,
+        createdAt: Date.now(),
+        createdBy: userId,
       };
 
       Audit.insert(audit);
@@ -172,9 +153,13 @@ Mongo.Collection.prototype.defaultCollectionAuditHooks = function (opts = {}) {
           }
         }
         getAudit(doc, modifier, options.auditFields).then((audit) => {
-          // console.log("audit ", audit);
+          console.log("audit ", audit);
           if (audit) {
-            Audit.insert(audit);
+            Audit.insert({
+              ...audit,
+              createdAt: Date.now(),
+              createdBy: userId,
+            });
           }
         });
       }
